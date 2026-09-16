@@ -14,8 +14,9 @@ jobs:
       - name: Run PR Agent
         uses: the-pr-agent/pr-agent@main
         env:
-          # 1. Pass the Gemini API Key instead of OpenAI
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 2. Instruct the bot to use the Gemini model
-          PR_AGENT.CONFIG.MODEL: "gemini/gemini-1.5-pro-latest"
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+            PR_AGENT.CONFIG.MODEL: "gemini/gemini-1.5-pro-latest"
+            # Add this new line to override the OpenAI fallbacks:
+            PR_AGENT.CONFIG.FALLBACK_MODELS: "gemini/gemini-1.5-flash"
