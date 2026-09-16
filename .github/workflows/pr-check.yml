@@ -1,0 +1,22 @@
+name: AI PR Reviewer (Gemini)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr_agent_job:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Run PR Agent
+        uses: the-pr-agent/pr-agent@main
+        env:
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+            PR_AGENT.CONFIG.MODEL: "gemini/gemini-1.5-pro-latest"
+            # Add this new line to override the OpenAI fallbacks:
+            PR_AGENT.CONFIG.FALLBACK_MODELS: "gemini/gemini-1.5-flash"
