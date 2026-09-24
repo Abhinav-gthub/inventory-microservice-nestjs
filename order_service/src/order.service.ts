@@ -1,9 +1,9 @@
-import { HttpStatus, Inject, Injectable } from "@nestjs/common";
+import { HttpStatus, Inject, Injectable, RequestTimeoutException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Order } from "./order.entity";
 import { Repository } from "typeorm";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
-import { lastValueFrom } from "rxjs";
+import { lastValueFrom, timeout, TimeoutError } from "rxjs";
 
 @Injectable()
 export class OrderService{
@@ -17,19 +17,18 @@ export class OrderService{
     const saveOrder = await this.orderRepository.save(order)
     
     try{
-      await lastValueFrom(this.inventoryClient.send('checkout_order',{productId, data:{quantity}}))
-      saveOrder.status = 'CONFIRMED'
-      return await this.orderRepository.save(saveOrder)
-  }
-  catch(error){
-    saveOrder.status='FAILED'
-    await this.orderRepository.save(saveOrder)
-
-    throw new RpcException({
-      statusCode: HttpStatus.BAD_REQUEST,
-      message: 'Failed to place order'
-    })
-  }
+      await lastValueFrom(this.inventoryClient.send('checkout_order',{productId, data:{quantity}}).pipe(timeout(5000)))
+    }
+    catch(error){
+      if(error instanceof TimeoutError){
+        throw new RequestTimeoutException('Inventory service is unresponsive. Order is pending verification.')
+      }
+      saveOrder.status='FAILED'
+      await this.orderRepository.save(saveOrder)
+      
+    }
+    saveOrder.status = 'CONFIRMED'
+    return await this.orderRepository.save(saveOrder)
   }
 
   async getOrderHistory(userId:number){

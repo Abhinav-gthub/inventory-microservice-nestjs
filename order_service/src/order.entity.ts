@@ -10,7 +10,7 @@ export class Order{
     productId!:number
     @Column()
     quantity!:number
-    @Column()
+    @Column({default:'PENDING'})
     status!:string
 
 }
