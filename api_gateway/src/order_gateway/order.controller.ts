@@ -1,6 +1,7 @@
 import { Controller, Inject, Injectable, Param, Post, UseGuards, Request, Body, Get } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { AuthGuard } from "src/auth/auth.guards";
+import { CreateOrderDto } from "./create-order.dto";
 
 @Controller('orders')
 export class OrderGatewayController{
@@ -10,7 +11,7 @@ export class OrderGatewayController{
 
     @UseGuards(AuthGuard)
     @Post('buy/:id')
-    makeOrder(@Request() req: any, @Param('id') id: string, @Body() body: {quantity:number}){
+    makeOrder(@Request() req: any, @Param('id') id: string, @Body() body: CreateOrderDto){
         return this.orderClient.send('create_order',{userId: req.user.sub, productId:+id, quantity: body.quantity})
     }
 
