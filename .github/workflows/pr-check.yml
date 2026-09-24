@@ -1,24 +1,31 @@
-name: AI PR Reviewer (Gemini)
+name: PR Agent
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
-  # 1. Add this new block to listen for commands
+    types: [opened, reopened, ready_for_review, synchronize]
   issue_comment:
     types: [created, edited]
 
 jobs:
   pr_agent_job:
+    if: ${{ github.event.sender.type != 'Bot' }}
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
       issues: write
+      pull-requests: write
+      contents: write
+    name: Run PR Agent
     steps:
-      - name: Run PR Agent
+      - name: PR Agent action step
+        id: pragent
         uses: the-pr-agent/pr-agent@main
         env:
-          config.custom_model_max_tokens: 2000000
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          config.model: "gemini/gemini-1.5-pro-latest"
-          config.fallback_models: '["gemini/gemini-1.5-flash-8b"]'
+          
+          # Corrected, stable Gemini model aliases
+          config.model: "gemini/gemini-1.5-pro"
+          config.fallback_models: '["gemini/gemini-1.5-flash"]'
+          
+          # Fix for the missing token limit in the litellm mapping
+          config.custom_model_max_tokens: 2000000
