@@ -32,3 +32,5 @@ jobs:
           github_action_config.auto_review: "true"
           github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
+          github_action_config.auto_incremental_review: "true"
+          github_action_config.auto_describe_on_push: "true"
