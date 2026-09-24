@@ -11,7 +11,7 @@ export class OrderController {
     return this.orderService.createOrder(Payload.userId,Payload.productId,Payload.quantity);
   }
 
-  @MessagePattern('get_orders')
+  @MessagePattern('get_my_orders')
   getOrders(@Payload() Payload:{userId:number}){
     return this.orderService.getOrderHistory(Payload.userId);
   }

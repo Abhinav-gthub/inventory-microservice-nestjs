@@ -22,15 +22,16 @@ export class OrderService{
     catch(error){
       if (error instanceof TimeoutError) {
         throw new RpcException({
-          statusCode: HttpStatus.REQUEST_TIMEOUT, // 408
+          statusCode: HttpStatus.REQUEST_TIMEOUT,
           message: 'Inventory service is unresponsive. Order is pending verification.'
         });
       }
+      const errorMessage = error instanceof Error?error.message:'Checkout failed due to inventory constraints'
       saveOrder.status='FAILED'
       await this.orderRepository.save(saveOrder)
       throw new RpcException({
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Checkout failed due to inventory constraints'
+        message: errorMessage
       });
 
     }
@@ -41,7 +42,7 @@ export class OrderService{
   async getOrderHistory(userId:number){
     return await this.orderRepository.find({
       where:{userId:userId},
-      order:{id:'DESC'}
+      order:{orderId:'DESC'}
     });
   }
 
