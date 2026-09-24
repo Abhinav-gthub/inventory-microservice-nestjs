@@ -1,9 +1,11 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { InvenoryGatewayController } from './inventory_gateway/inventory.controller';
+import { GatewayService } from './gateway.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { LoggerMiddleware } from './logger.middleware';
+import { LoggerMiddleware } from './common/logger.middleware';
 import { JwtModule } from '@nestjs/jwt';
+import { UserAuthorisation } from './auth/auth.contoller';
+import { OrderGatewayController } from './order_gateway/order.controller';
 
 @Module({
   imports: [
@@ -21,10 +23,20 @@ import { JwtModule } from '@nestjs/jwt';
           port: 3001,
         }
       }
-    ])
+    ]),
+    ClientsModule.register([
+      {
+        name: 'ORDER_CLIENT',
+        transport: Transport.TCP,
+        options:{
+          host:'127.0.0.1',
+          port: 3002
+        }
+      }
+  ])
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [InvenoryGatewayController,UserAuthorisation,OrderGatewayController],
+  providers: [GatewayService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
