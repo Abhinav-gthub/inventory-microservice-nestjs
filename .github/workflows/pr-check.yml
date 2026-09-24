@@ -29,3 +29,6 @@ jobs:
           
           # Fix for the missing token limit in the litellm mapping
           config.custom_model_max_tokens: 2000000
+          github_action_config.auto_review: "true"
+          github_action_config.auto_describe: "true"
+          github_action_config.auto_improve: "true"
