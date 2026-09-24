@@ -1,11 +1,8 @@
-name: PR Agent
-
+name: PR Agent (Gemini)
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review, synchronize]
+    types: [opened, reopened, ready_for_review]
   issue_comment:
-    types: [created, edited]
-
 jobs:
   pr_agent_job:
     if: ${{ github.event.sender.type != 'Bot' }}
@@ -14,23 +11,14 @@ jobs:
       issues: write
       pull-requests: write
       contents: write
-    name: Run PR Agent
     steps:
       - name: PR Agent action step
-        id: pragent
         uses: the-pr-agent/pr-agent@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          
-          # Corrected, stable Gemini model aliases
-          config.model: "gemini/gemini-1.5-pro"
+          config.model: "gemini/gemini-1.5-flash"
           config.fallback_models: '["gemini/gemini-1.5-flash"]'
-          
-          # Fix for the missing token limit in the litellm mapping
-          config.custom_model_max_tokens: 2000000
+          GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           github_action_config.auto_review: "true"
           github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
-          github_action_config.auto_incremental_review: "true"
-          github_action_config.auto_describe_on_push: "true"
