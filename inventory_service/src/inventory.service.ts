@@ -25,6 +25,7 @@ export class InventoryService {
             });
         }
         product.stock-=quantity;
+        await this.productRepository.save(product)
         return {product};
     }
 
