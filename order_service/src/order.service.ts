@@ -20,12 +20,19 @@ export class OrderService{
       await lastValueFrom(this.inventoryClient.send('checkout_order',{productId, data:{quantity}}).pipe(timeout(5000)))
     }
     catch(error){
-      if(error instanceof TimeoutError){
-        throw new RequestTimeoutException('Inventory service is unresponsive. Order is pending verification.')
+      if (error instanceof TimeoutError) {
+        throw new RpcException({
+          statusCode: HttpStatus.REQUEST_TIMEOUT, // 408
+          message: 'Inventory service is unresponsive. Order is pending verification.'
+        });
       }
       saveOrder.status='FAILED'
       await this.orderRepository.save(saveOrder)
-      
+      throw new RpcException({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Checkout failed due to inventory constraints'
+      });
+
     }
     saveOrder.status = 'CONFIRMED'
     return await this.orderRepository.save(saveOrder)
