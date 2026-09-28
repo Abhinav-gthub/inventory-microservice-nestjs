@@ -11,22 +11,15 @@ export class InventoryService {
     constructor(@InjectRepository(Product) private readonly productRepository: Repository<Product>,){}
 
     async processOrder(productId: number, quantity: number){
-        const product = await this.productRepository.findOneBy({id:productId})
-        if(!product){
+        const result = await this.productRepository.createQueryBuilder().update().set({stock: () => 'stock-: quantity'}).where('id = :productId',{productId:productId}).andWhere('stock>=:quantity',{quantity:quantity}).execute()
+
+        if(result.affected==0){
             throw new RpcException({
-                statusCode: HttpStatus.NOT_FOUND,
-                message: `No product found with id ${productId}.`
-            });
+                statusCode:HttpStatus.BAD_REQUEST,
+                message: 'Checkout failed: Insufficient stock available.'
+            })
         }
-        else if(product.stock<quantity){
-            throw new RpcException({
-                statusCode: HttpStatus.BAD_REQUEST,
-                message: `Not enough stock available.`
-            });
-        }
-        product.stock-=quantity;
-        await this.productRepository.save(product)
-        return {product};
+        return {success:true,message:'order success'}
     }
 
     async getProductWithId(productId: number){
