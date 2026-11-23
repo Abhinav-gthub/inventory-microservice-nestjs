@@ -11,7 +11,7 @@ import { OrderGatewayController } from './order_gateway/order.controller';
   imports: [
     JwtModule.register({
       global:true,
-      secret: 'MY_SUPER_SECRET_KEY',
+      secret: process.env.JWT_SECRET,
       signOptions: {expiresIn: '1h'},
     }),
     ClientsModule.register([
@@ -19,7 +19,7 @@ import { OrderGatewayController } from './order_gateway/order.controller';
         name: 'INVENTORY_CLIENT',
         transport: Transport.TCP,
         options:{
-          host:'127.0.0.1',
+          host:process.env.INVENTORY_HOST|| '127.0.0.1',
           port: 3001,
         }
       }
@@ -29,7 +29,7 @@ import { OrderGatewayController } from './order_gateway/order.controller';
         name: 'ORDER_CLIENT',
         transport: Transport.TCP,
         options:{
-          host:'127.0.0.1',
+          host:process.env.ORDER_HOST|| '127.0.0.1',
           port: 3002
         }
       }

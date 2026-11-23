@@ -8,10 +8,10 @@ import { Product } from './product.entity';
   imports: [
     TypeOrmModule.forRoot({
       type:'postgres',
-      host:'localhost',
+      host:process.env.DB_HOST || 'localhost',
       port:5432,
       username:'postgres',
-      password:'password',
+      password:process.env.DB_PASSWORD ||'password',
       database:'inventory_db',
       entities:[Product],
       synchronize:true,

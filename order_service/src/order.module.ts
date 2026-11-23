@@ -1,3 +1,4 @@
+import * as process from 'process';
 import { Module } from '@nestjs/common';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
@@ -9,10 +10,10 @@ import { Order } from './order.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host:  process.env.DB_HOST|| 'localhost',
       port: 5432,
       username: 'postgres',
-      password: 'password',
+      password:process.env.DB_PASSWORD ||'password',
       database: 'order_db',
       entities: [Order],
       synchronize:true,
@@ -24,7 +25,7 @@ import { Order } from './order.entity';
         name:'INVENTORY_CLIENT',
         transport: Transport.TCP,
         options:{
-          host:'127.0.0.1',
+          host: process.env.INVENTORY_HOST || '127.0.0.1',
           port: 3001
         }
       }

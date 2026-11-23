@@ -26,7 +26,7 @@ export class OrderService{
           message: 'Inventory service is unresponsive. Order is pending verification.'
         });
       }
-      const errorMessage = error instanceof Error?error.message:'Checkout failed due to inventory constraints'
+      const errorMessage = error?.message || (error instanceof Error ? error.message : 'Checkout failed due to inventory constraints')
       saveOrder.status='FAILED'
       await this.orderRepository.save(saveOrder)
       throw new RpcException({

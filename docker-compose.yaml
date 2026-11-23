@@ -1,0 +1,61 @@
+services:
+  # 1. The Database
+  database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. The Microservices
+  inventory-service:
+    build:
+      context: ./inventory_service
+    environment:
+      - DB_HOST=database
+      - DB_PASSWORD=password
+    ports:
+      - "3001:3001"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  order-service:
+    build:
+      context: ./order_service
+    environment:
+      - DB_HOST=database
+      - DB_PASSWORD=password
+      - INVENTORY_HOST=inventory-service
+    ports:
+      - "3002:3002"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # 3. The Gateway
+  api-gateway:
+    build:
+      context: ./api_gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - INVENTORY_HOST=inventory-service
+      - ORDER_HOST=order-service
+      - JWT_SECRET=${JWT_SECRET:-MY_SUPER_SECRET_KEY}
+    depends_on:
+      - order-service
+      - inventory-service
+
+volumes:
+  pgdata:
