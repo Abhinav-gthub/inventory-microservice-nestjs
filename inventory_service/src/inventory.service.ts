@@ -11,7 +11,7 @@ export class InventoryService {
     constructor(@InjectRepository(Product) private readonly productRepository: Repository<Product>,){}
 
     async processOrder(productId: number, quantity: number){
-        const result = await this.productRepository.createQueryBuilder().update().set({stock: () => 'stock-: quantity'}).where('id = :productId',{productId:productId}).andWhere('stock>=:quantity',{quantity:quantity}).execute()
+        const result = await this.productRepository.createQueryBuilder().update().set({stock: () => 'stock- :quantity'}).where('id = :productId',{productId:productId}).andWhere('stock>=:quantity',{quantity:quantity}).execute()
 
         if(result.affected==0){
             throw new RpcException({
